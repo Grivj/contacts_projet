@@ -1,0 +1,11 @@
+version: "3"
+services:
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/client
+    environment:
+      - NODE_ENV=development
+    command: [ "npm", "start" ]
