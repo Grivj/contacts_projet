@@ -1,9 +1,9 @@
 import { Container, Divider } from "@chakra-ui/react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import './App.css';
-import NavMenu from "./components/NavMenu";
+import { UpdateContactForm } from "./components/ContactForms";
 import Contacts from "./components/Contacts";
-import { ModifyContactForm } from "./components/ContactForms"
+import NavMenu from "./components/NavMenu";
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<PlaceHolderComponent />} />
         <Route path="/tunnel" element={<PlaceHolderComponent />} />
         <Route path="/contacts" element={<Contacts />} />
-        <Route path="/contacts/:id" element={<ModifyContactForm />} />
+        <Route path="/contacts/:id" element={<UpdateContactForm />} />
       </Routes>
 
     </Container>
