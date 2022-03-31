@@ -20,7 +20,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import ModifyContactForm from "./Contact";
+import { NewContactForm } from "./ContactForms";
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -33,7 +33,11 @@ const Contacts = () => {
 
   return (
     <Container>
-      <CreateContactModal />
+      <NewContactForm
+        onNewContact={(contact) =>
+          setContacts((currentContacts) => [...currentContacts, contact])
+        }
+      />
       <ContactsTable contacts={contacts} />
     </Container>
   );
@@ -106,7 +110,7 @@ export const CreateContactModal = () => {
           <ModalHeader>Adding a contact</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ModifyContactForm />
+            <NewContactForm />
           </ModalBody>
         </ModalContent>
       </Modal>

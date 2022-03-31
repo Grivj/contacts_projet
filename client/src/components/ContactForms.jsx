@@ -1,5 +1,12 @@
-import { Box, Button, ButtonGroup, Center, Divider } from "@chakra-ui/react";
-import { Formik } from "formik";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Center,
+  Divider,
+  useToast,
+} from "@chakra-ui/react";
+import { Form, Formik } from "formik";
 import {
   InputControl,
   ResetButton,
@@ -7,31 +14,30 @@ import {
   SwitchControl,
 } from "formik-chakra-ui";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import ContactService from "./ContactService";
 
 const phoneRegExp = /^0[1-9]([-. ]?[0-9]{2}){4}$/;
 
 const validationSchema = Yup.object({
-  firstName: Yup.string("First name should be a string").required(
-    "First name is required"
-  ),
-  lastName: Yup.string().required("Last name is required"),
-  phoneNumber: Yup.string().matches(
+  name: Yup.string().required("Name is required"),
+  phone_number: Yup.string().matches(
     phoneRegExp,
     "Must be a valid french phone number."
   ),
   siren: Yup.string()
     .matches(/^[0-9]+$/, "Must be only digits")
     .min(14, "Must be exactly 14 digits")
-    .max(14, "Must be exactly 14 digits"),
+    .max(14, "Must be exactly 14 digits")
+    .nullable(),
   called: Yup.boolean(),
 });
 
 export const ModifyContactForm = () => {
   const [contact, setContact] = useState({});
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`/api/contacts/${id}`)
@@ -57,7 +63,8 @@ export const ModifyContactForm = () => {
   const handleDelete = () => {
     ContactService.deleteContact(id)
       .then(() => window.alert("Contact was successfully deleted"))
-      .catch((error) => window.alert(error));
+      .catch((error) => window.alert(error))
+      .then(() => navigate("/contacts"));
   };
 
   return (
@@ -75,10 +82,9 @@ export const ModifyContactForm = () => {
           p={6}
           onSubmit={handleSubmit}
         >
-          <InputControl name="firstName" label="First Name" />
-          <InputControl name="lastName" label="Last Name" />
+          <InputControl name="name" label="Name" />
           <InputControl name="company" label="Company" />
-          <InputControl name="phoneNumber" label="Phone Number" />
+          <InputControl name="phone_number" label="Phone number" />
           <InputControl name="siren" label="SIREN" />
           <SwitchControl name="called" label="Called" />
 
@@ -98,49 +104,51 @@ export const ModifyContactForm = () => {
   );
 };
 
-export const CreateContactForm = ({ mode }) => {
-  const { id } = useParams();
-
-  const onSubmit = (values) => {
-    ContactService.insertContact(JSON.stringify(values, null, 2), id)
-      .then(() => window.alert("Contact was successfully updated"))
-      .catch((error) => window.alert(error));
-  };
+export const NewContactForm = ({ onNewContact }) => {
+  const toast = useToast();
 
   return (
     <Formik
       initialValues={{
-        firstName: "",
-        lastName: "",
+        name: "",
         company: "",
-        phoneNumber: "",
-        siren: "",
-        called: false,
+        phone_number: "",
       }}
-      onSubmit={onSubmit}
+      onSubmit={async (values, actions) => {
+        const response = await fetch("/api/contacts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }).then()
+
+        if (response.ok) {
+          onNewContact(response.json());
+          actions.setSubmitting(false);
+          actions.resetForm();
+          toast({
+            title: "Contact created.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      }}
       validationSchema={validationSchema}
       enableReinitialize
     >
-      {({ handleSubmit, values, errors }) => (
-        <Box
-          borderWidth="1px"
-          rounded="lg"
-          as="form"
-          p={6}
-          onSubmit={handleSubmit}
-        >
-          <InputControl name="firstName" label="First Name" />
-          <InputControl name="lastName" label="Last Name" />
+      {(props) => (
+        <Form>
+          <InputControl name="name" label="Name" />
           <InputControl name="company" label="Company" />
-          <InputControl name="phoneNumber" label="Phone Number" />
-          <InputControl name="siren" label="SIREN" />
-          <SwitchControl name="called" label="Called" />
+          <InputControl name="phone_number" label="Phone Number" />
 
           <ButtonGroup mt="10px">
             <SubmitButton>Submit</SubmitButton>
             <ResetButton>Reset</ResetButton>
           </ButtonGroup>
-        </Box>
+        </Form>
       )}
     </Formik>
   );

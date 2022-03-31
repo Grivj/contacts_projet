@@ -74,10 +74,9 @@ const ModifyContactForm = ({ mode }) => {
           p={6}
           onSubmit={handleSubmit}
         >
-          <InputControl name="firstName" label="First Name" />
-          <InputControl name="lastName" label="Last Name" />
+          <InputControl name="name" label="First Name" />
           <InputControl name="company" label="Company" />
-          <InputControl name="phoneNumber" label="Phone Number" />
+          <InputControl name="phone_number" label="Phone Number" />
           <InputControl name="siren" label="SIREN" />
           <SwitchControl name="called" label="Called" />
 
