@@ -121,7 +121,7 @@ export const NewContactForm = ({ onNewContact }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
-        }).then()
+        }).then();
 
         if (response.ok) {
           onNewContact(response.json());
@@ -143,6 +143,68 @@ export const NewContactForm = ({ onNewContact }) => {
           <InputControl name="name" label="Name" />
           <InputControl name="company" label="Company" />
           <InputControl name="phone_number" label="Phone Number" />
+
+          <ButtonGroup mt="10px">
+            <SubmitButton>Submit</SubmitButton>
+            <ResetButton>Reset</ResetButton>
+          </ButtonGroup>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
+export const UpdateContactForm = () => {
+  const [contact, setContact] = useState({});
+  const { id } = useParams();
+  const toast = useToast();
+
+  useEffect(() => {
+    fetch(`/api/contacts/${id}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response;
+      })
+      .then((response) => response.json())
+      .then((json) => setContact(json))
+      .catch((error) => console.error(error));
+  }, [id]);
+
+  return (
+    <Formik
+      initialValues={contact}
+      onSubmit={async (values, actions) => {
+        const response = await fetch(`/api/contacts/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }).then();
+
+        if (response.ok) {
+          actions.setSubmitting(false);
+          toast({
+            title: "Contact updated.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      }}
+      validationSchema={validationSchema}
+      enableReinitialize
+    >
+      {(props) => (
+        <Form>
+          <InputControl name="name" label="Name" />
+          <InputControl name="company" label="Company" />
+          <InputControl name="phone_number" label="Phone Number" />
+          <InputControl name="email" label="Email address" />
+          <InputControl name="siren" label="SIREN number" />
+          <SwitchControl name="called" label="Called" />
 
           <ButtonGroup mt="10px">
             <SubmitButton>Submit</SubmitButton>

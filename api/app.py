@@ -120,10 +120,9 @@ class ContactInfo(Resource):
         contact = db.session.query(Contact).filter_by(id=id).first()
         if contact is None:
             abort(404, message=f"Contact {id} doesn't exist")
-        data = request.json
-        print(json.loads(data), flush=True)
-        # contact.update(updated_contact)
-        # db.session.commit()
+        data = request.get_json()
+        contact.update(data)
+        db.session.commit()
         return contact._serialize(), 200
 
     # Delete the contact by id; if the contact is not found, abort with a 404 error.
