@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Center,
-  Divider,
-  useToast,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import {
   InputControl,
@@ -16,7 +9,6 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
-import ContactService from "./ContactService";
 
 const phoneRegExp = /^0[1-9]([-. ]?[0-9]{2}){4}$/;
 
@@ -33,76 +25,6 @@ const validationSchema = Yup.object({
     .nullable(),
   called: Yup.boolean(),
 });
-
-export const ModifyContactForm = () => {
-  const [contact, setContact] = useState({});
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch(`/api/contacts/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw Error(response.statusText);
-        }
-        return response;
-      })
-      .then((response) => response.json())
-      .then((json) => setContact(json))
-      .catch((error) => console.error(error));
-  }, [id]);
-
-  const onSubmit = (values) => {
-    setContact(values);
-    console.log(contact);
-    ContactService.updateContact(JSON.stringify(values, null, 2), id)
-      .then(() => window.alert("Contact was successfully updated"))
-      .catch((error) => window.alert(error));
-  };
-
-  const handleDelete = () => {
-    ContactService.deleteContact(id)
-      .then(() => window.alert("Contact was successfully deleted"))
-      .catch((error) => window.alert(error))
-      .then(() => navigate("/contacts"));
-  };
-
-  return (
-    <Formik
-      initialValues={contact}
-      onSubmit={onSubmit}
-      validationSchema={validationSchema}
-      enableReinitialize
-    >
-      {({ handleSubmit, values, errors }) => (
-        <Box
-          borderWidth="1px"
-          rounded="lg"
-          as="form"
-          p={6}
-          onSubmit={handleSubmit}
-        >
-          <InputControl name="name" label="Name" />
-          <InputControl name="company" label="Company" />
-          <InputControl name="phone_number" label="Phone number" />
-          <InputControl name="siren" label="SIREN" />
-          <SwitchControl name="called" label="Called" />
-
-          <ButtonGroup mt="10px">
-            <SubmitButton>Submit</SubmitButton>
-            <ResetButton>Reset</ResetButton>
-            <Center>
-              <Divider m="20px" orientation="vertical" />
-            </Center>
-            <Button colorScheme="red" variant="solid" onClick={handleDelete}>
-              Delete
-            </Button>
-          </ButtonGroup>
-        </Box>
-      )}
-    </Formik>
-  );
-};
 
 export const NewContactForm = ({ onNewContact }) => {
   const toast = useToast();
@@ -156,6 +78,7 @@ export const NewContactForm = ({ onNewContact }) => {
 
 export const UpdateContactForm = () => {
   const [contact, setContact] = useState({});
+  const navigate = useNavigate();
   const { id } = useParams();
   const toast = useToast();
 
@@ -209,6 +132,31 @@ export const UpdateContactForm = () => {
           <ButtonGroup mt="10px">
             <SubmitButton>Submit</SubmitButton>
             <ResetButton>Reset</ResetButton>
+            <Button
+              colorScheme="red"
+              variant="solid"
+              onClick={async (values, actions) => {
+                const response = await fetch(`/api/contacts/${id}`, {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: null,
+                }).then();
+
+                if (response.ok) {
+                  toast({
+                    title: "Contact deleted.",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                  navigate("/contacts");
+                }
+              }}
+            >
+              Delete
+            </Button>
           </ButtonGroup>
         </Form>
       )}
