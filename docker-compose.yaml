@@ -9,3 +9,21 @@ services:
     environment:
       - NODE_ENV=development
     command: [ "npm", "start" ]
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    restart: always
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+    volumes:
+      - ./api:/api
+  proxy:
+    build: ./proxy
+    links:
+      - api
+      - client
+      # - phpmyadmin
+    ports:
+      - 80:80
