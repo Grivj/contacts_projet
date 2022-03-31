@@ -3,7 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import './App.css';
 import NavMenu from "./components/NavMenu";
 import Contacts from "./components/Contacts";
-
+import { ModifyContactForm } from "./components/ContactForms"
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<PlaceHolderComponent />} />
         <Route path="/tunnel" element={<PlaceHolderComponent />} />
         <Route path="/contacts" element={<Contacts />} />
-        <Route path="/contacts/:id" element={<PlaceHolderComponent />} />
+        <Route path="/contacts/:id" element={<ModifyContactForm />} />
       </Routes>
 
     </Container>

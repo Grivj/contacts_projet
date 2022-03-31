@@ -3,3 +3,5 @@ mysql-connector
 pymysql
 flask_sqlalchemy
 Flask-RESTful
+Faker
+SQLAlchemy<1.4

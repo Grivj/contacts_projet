@@ -4,6 +4,7 @@ services:
     build: ./client
     ports:
       - "3000:3000"
+    # restart: unless-stopped
     volumes:
       - ./client:/client
     environment:
@@ -13,17 +14,47 @@ services:
     build: ./api
     ports:
       - "5000:5000"
-    restart: always
+    # restart: unless-stopped
+    depends_on:
+      - mysql
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
     volumes:
       - ./api:/api
+
+  mysql:
+    image: mysql:5.7
+    # restart: unless-stopped
+    volumes:
+      # - ./db:/docker-entrypoint-initdb.d/:ro
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=ayomi
+      - MYSQL_PASSWORD=ayomi
+      - MYSQL_ROOT_PASSWORD=root
+
+  phpmyadmin:
+    depends_on:
+      - mysql
+    image: phpmyadmin/phpmyadmin:latest
+    restart: unless-stopped
+    ports:
+      - "5010:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ayomi
+      PMA_PASSWORD: ayomi
+      MYSQL_ROOT_PASSWORD: root
   proxy:
     build: ./proxy
     links:
       - api
       - client
-      # - phpmyadmin
+      - phpmyadmin
     ports:
       - 80:80
+
+volumes:
+  db: {}

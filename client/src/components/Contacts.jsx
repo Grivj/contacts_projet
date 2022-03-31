@@ -1,15 +1,13 @@
+import { SearchIcon } from "@chakra-ui/icons";
 import {
   Button,
+  Center,
   Container,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Table,
@@ -20,20 +18,18 @@ import {
   Thead,
   Tr,
   useDisclosure,
-  Center,
 } from "@chakra-ui/react";
-import { Field, Form, Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ModifyContactForm from "./Contact";
 
 const Contacts = () => {
-  const [contacts, setContacts] = useState([
-    {
-      firstName: "John",
-      lastName: "Doe",
-      company: "Google",
-      phoneNumber: "123",
-    },
-  ]);
+  const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/contacts")
+      .then((response) => response.json())
+      .then((json) => setContacts(json));
+  }, []);
 
   return (
     <Container>
@@ -59,10 +55,14 @@ export const ContactsTable = (contacts) => {
           {contacts.contacts.length > 0 &&
             contacts.contacts.map((contact, idx) => (
               <Tr key={idx}>
-                <Td>{contact.lastName}</Td>
-                <Td>{contact.firstName}</Td>
-                <Td>{contact.company}</Td>
-                <Td>{contact.company}</Td>
+                <Td>{contact.lastName ? contact.lastName : "-"}</Td>
+                <Td>{contact.firstName ? contact.firstName : "-"}</Td>
+                <Td>{contact.company ? contact.company : "-"}</Td>
+                <Td>
+                  <Link href={`/contacts/${contact.id}`}>
+                    <SearchIcon />
+                  </Link>
+                </Td>
               </Tr>
             ))}
           {contacts.contacts.length === 0 && (
@@ -108,105 +108,7 @@ export const CreateContactModal = () => {
           <ModalHeader>Adding a contact</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Formik
-              initialValues={{
-                firstName: "",
-                lastName: "",
-                company: "",
-                phoneNumber: "",
-              }}
-              onSubmit={(values, actions) => {
-                setTimeout(() => {
-                  alert(JSON.stringify(values, null, 2));
-                  actions.setSubmitting(false);
-                }, 1000);
-              }}
-            >
-              {(props) => (
-                <Form>
-                  <Field name="firstName" validate={validateNotEmpty}>
-                    {({ field, form }) => (
-                      <FormControl
-                        isRequired
-                        isInvalid={
-                          form.errors.firstName && form.touched.firstName
-                        }
-                      >
-                        <FormLabel htmlFor="firstName">First name</FormLabel>
-                        <Input
-                          {...field}
-                          id="firstName"
-                          placeholder="First name"
-                        />
-                        <FormErrorMessage>
-                          {form.errors.firstName}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-                  <Field name="lastName" validate={validateNotEmpty}>
-                    {({ field, form }) => (
-                      <FormControl
-                        isRequired
-                        isInvalid={
-                          form.errors.lastName && form.touched.lastName
-                        }
-                      >
-                        <FormLabel htmlFor="name">Last name</FormLabel>
-                        <Input {...field} id="name" placeholder="Last name" />
-                        <FormErrorMessage>
-                          {form.errors.lastName}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-                  <Field name="company">
-                    {({ field, form }) => (
-                      <FormControl
-                        isInvalid={form.errors.company && form.touched.company}
-                      >
-                        <FormLabel htmlFor="company">Company</FormLabel>
-                        <Input {...field} id="company" placeholder="Company" />
-                        <FormErrorMessage>
-                          {form.errors.company}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-                  <Field name="phoneNumber" validate={validatePhoneNumber}>
-                    {({ field, form }) => (
-                      <FormControl
-                        isInvalid={
-                          form.errors.phoneNumber && form.touched.phoneNumber
-                        }
-                      >
-                        <FormLabel htmlFor="name">Phone number</FormLabel>
-                        <Input
-                          {...field}
-                          id="phoneNumber"
-                          placeholder="Phone number"
-                        />
-                        <FormErrorMessage>
-                          {form.errors.phoneNumber}
-                        </FormErrorMessage>
-                      </FormControl>
-                    )}
-                  </Field>
-                  <ModalFooter>
-                    <Button mr={3} onClick={onClose}>
-                      Close
-                    </Button>
-                    <Button
-                      colorScheme="blue"
-                      isLoading={props.isSubmitting}
-                      type="submit"
-                    >
-                      Submit
-                    </Button>
-                  </ModalFooter>
-                </Form>
-              )}
-            </Formik>
+            <ModifyContactForm />
           </ModalBody>
         </ModalContent>
       </Modal>
