@@ -26,9 +26,9 @@ services:
   mysql:
     image: arm64v8/mysql:oracle
     # restart: unless-stopped
-    volumes:
+    # volumes:
       # - ./db:/docker-entrypoint-initdb.d/:ro
-      - db:/var/lib/mysql
+      # - db:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=db
       - MYSQL_USER=root
@@ -56,5 +56,5 @@ services:
     ports:
       - 80:80
 
-volumes:
-  db: {}
+# volumes:
+#   db: {}
