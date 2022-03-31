@@ -14,7 +14,7 @@ services:
     build: ./api
     ports:
       - "5000:5000"
-    # restart: unless-stopped
+    restart: unless-stopped
     depends_on:
       - mysql
     environment:
@@ -24,15 +24,15 @@ services:
       - ./api:/api
 
   mysql:
-    image: mysql:5.7
+    image: arm64v8/mysql:oracle
     # restart: unless-stopped
     volumes:
       # - ./db:/docker-entrypoint-initdb.d/:ro
       - db:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=db
-      - MYSQL_USER=ayomi
-      - MYSQL_PASSWORD=ayomi
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
       - MYSQL_ROOT_PASSWORD=root
 
   phpmyadmin:
@@ -44,8 +44,8 @@ services:
       - "5010:80"
     environment:
       PMA_HOST: mysql
-      PMA_USER: ayomi
-      PMA_PASSWORD: ayomi
+      PMA_USER: root
+      PMA_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
   proxy:
     build: ./proxy

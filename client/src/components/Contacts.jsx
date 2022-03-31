@@ -45,8 +45,7 @@ export const ContactsTable = (contacts) => {
       <Table>
         <Thead>
           <Tr>
-            <Th>Last Name</Th>
-            <Th>First Name</Th>
+            <Th>Name</Th>
             <Th>Company</Th>
             <Th></Th>
           </Tr>
@@ -55,8 +54,7 @@ export const ContactsTable = (contacts) => {
           {contacts.contacts.length > 0 &&
             contacts.contacts.map((contact, idx) => (
               <Tr key={idx}>
-                <Td>{contact.lastName ? contact.lastName : "-"}</Td>
-                <Td>{contact.firstName ? contact.firstName : "-"}</Td>
+                <Td>{contact.name ? contact.name : "-"}</Td>
                 <Td>{contact.company ? contact.company : "-"}</Td>
                 <Td>
                   <Link href={`/contacts/${contact.id}`}>

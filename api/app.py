@@ -6,14 +6,15 @@ from flask import Flask, Response, jsonify, make_response, request
 from flask_restful import Api, Resource, abort, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
 
 app = Flask(__name__)
 api = Api(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(
-    os.getenv("DB_USER", "ayomi"),
-    os.getenv("DB_PASSWORD", "ayomi"),
+    os.getenv("DB_USER", "root"),
+    os.getenv("DB_PASSWORD", "root"),
     os.getenv("DB_HOST", "mysql"),
     os.getenv("DB_NAME", "db"),
 )
@@ -36,16 +37,19 @@ class Contact(db.Model):
     company = db.Column(db.String(80))
     called = db.Column(db.Boolean, default=False)
 
+    def _serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
 
 db.create_all()
 
-# faker = Faker("fr_FR")
-# fake_contacts = [
-#     Contact(name=faker.name(), phone_number="0643014673", email=faker.email())
-#     for _ in range(100)
-# ]
-# db.session.add_all(fake_contacts)
-# db.session.commit()
+faker = Faker("fr_FR")
+fake_contacts = [
+    Contact(name=faker.name(), phone_number="0643014673", email=faker.email())
+    for _ in range(100)
+]
+db.session.add_all(fake_contacts)
+db.session.commit()
 
 
 class Index(Resource):
@@ -92,16 +96,16 @@ class ContactList(Resource):
     #     FAKE_DATABASE.append(data)
     #     return data, 201
 
-    # return all contacts from database in json format
     def get(self):
         contacts = Contact.query.all()
-        print(contacts)
+
+        return [contact._serialize() for contact in contacts], 200
 
 
 # ADDING ROUTES
 api.add_resource(Index, "/")
 api.add_resource(ContactList, "/contacts")
-api.add_resource(Contact, "/contacts/<int:contact_id>")
+# api.add_resource(Contact, "/contacts/<int:contact_id>")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
