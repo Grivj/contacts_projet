@@ -80,42 +80,4 @@ export const ContactsTable = (contacts) => {
   );
 };
 
-export const CreateContactModal = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  function validateNotEmpty(value) {
-    let error;
-    if (!value) {
-      error = "Field required";
-    }
-    return error;
-  }
-
-  function validatePhoneNumber(value) {
-    let error;
-    const regex = /^0[1-9]([-. ]?[0-9]{2}){4}$/;
-    if (!regex.test(value)) {
-      error = "Please enter a valid french phone number";
-    }
-    return error;
-  }
-  return (
-    <>
-      <Center m="20px">
-        <Button onClick={onOpen}>Add a contact</Button>
-      </Center>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Adding a contact</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <NewContactForm />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
-  );
-};
-
 export default Contacts;
