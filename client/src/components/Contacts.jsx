@@ -3,7 +3,6 @@ import {
   Container,
   Link,
   Table,
-  TableContainer,
   Tbody,
   Td,
   Th,
@@ -36,46 +35,44 @@ const Contacts = () => {
 
 export const ContactsTable = (contacts) => {
   return (
-    <TableContainer>
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Company</Th>
-            <Th>Called</Th>
-            <Th></Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {contacts.contacts.length > 0 &&
-            contacts.contacts.map((contact, idx) => (
-              <Tr key={idx}>
-                <Td>{contact.name ? contact.name : "-"}</Td>
-                <Td>{contact.company ? contact.company : "-"}</Td>
-                <Td>
-                  {contact.called ? (
-                    <CheckIcon color="green" />
-                  ) : (
-                    <CloseIcon codlor="red" />
-                  )}
-                </Td>
-                <Td>
-                  <Link href={`/contacts/${contact.id}`}>
-                    <SearchIcon />
-                  </Link>
-                </Td>
-              </Tr>
-            ))}
-          {contacts.contacts.length === 0 && (
-            <Tr>
-              <Td colSpan={4} textAlign="center">
-                No contacts
+    <Table>
+      <Thead>
+        <Tr>
+          <Th>Name</Th>
+          <Th>Company</Th>
+          <Th>Called</Th>
+          <Th></Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {contacts.contacts.length > 0 &&
+          contacts.contacts.map((contact, idx) => (
+            <Tr key={idx}>
+              <Td>{contact.name ? contact.name : "-"}</Td>
+              <Td>{contact.company ? contact.company : "-"}</Td>
+              <Td>
+                {contact.called ? (
+                  <CheckIcon color="green" />
+                ) : (
+                  <CloseIcon color="red" />
+                )}
+              </Td>
+              <Td>
+                <Link href={`/contacts/${contact.id}`}>
+                  <SearchIcon />
+                </Link>
               </Td>
             </Tr>
-          )}
-        </Tbody>
-      </Table>
-    </TableContainer>
+          ))}
+        {contacts.contacts.length === 0 && (
+          <Tr>
+            <Td colSpan={4} textAlign="center">
+              No contacts
+            </Td>
+          </Tr>
+        )}
+      </Tbody>
+    </Table>
   );
 };
 
