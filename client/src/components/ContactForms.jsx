@@ -20,8 +20,8 @@ const validationSchema = Yup.object({
   ),
   siren: Yup.string()
     .matches(/^[0-9]+$/, "Must be only digits")
-    .min(14, "Must be exactly 14 digits")
-    .max(14, "Must be exactly 14 digits")
+    .min(9, "Must be exactly 14 digits")
+    .max(9, "Must be exactly 14 digits")
     .nullable(),
   called: Yup.boolean(),
 });
