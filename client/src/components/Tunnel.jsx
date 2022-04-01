@@ -28,8 +28,6 @@ export const Tunnel = () => {
 
   return (
     <Box>
-      {console.log(contact.length)}
-      {console.log(contact)}
       {Object.keys(contact).length === 0 ? (
         <Text fontSize="1.5em" textAlign="center">
           No more contact to call... <br />
