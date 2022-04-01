@@ -89,6 +89,26 @@ class Index(Resource):
 #     abort(404, message=f"Contact {contact_id} doesn't exist")
 
 
+class Tunnel(Resource):
+    def get(self):
+        # get the first not called contact
+        contact = db.session.query(Contact).filter_by(called=False).first()._serialize()
+        if not contact:
+            return {"message": "No more contacts to call"}, 404
+        return contact, 200
+
+
+class TunnelUpdate(Resource):
+    def put(self, id: int) -> Contact:
+        contact = db.session.query(Contact).filter_by(id=id).first()
+        if contact is None:
+            abort(404, message=f"Contact {id} doesn't exist")
+        data = request.get_json()
+        contact.update(data)
+        db.session.commit()
+        return contact._serialize(), 200
+
+
 class ContactInfo(Resource):
     def get(self, id: int) -> Contact:
         """
@@ -151,7 +171,6 @@ class ContactList(Resource):
         db.session.add(contact)
         db.session.commit()
         db.session.flush()
-        print(data, flush=True)
         return contact._serialize(), 201
 
     def get(self):
@@ -164,6 +183,8 @@ class ContactList(Resource):
 api.add_resource(Index, "/")
 api.add_resource(ContactList, "/contacts")
 api.add_resource(ContactInfo, "/contacts/<int:id>")
+api.add_resource(Tunnel, "/tunnel")
+api.add_resource(TunnelUpdate, "/tunnel/<int:id>")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
