@@ -4,6 +4,7 @@ import './App.css';
 import { UpdateContactForm } from "./components/ContactForms";
 import Contacts from "./components/Contacts";
 import NavMenu from "./components/NavMenu";
+import Tunnel from "./components/Tunnel";
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<PlaceHolderComponent />} />
-        <Route path="/tunnel" element={<PlaceHolderComponent />} />
+        <Route path="/tunnel" element={<Tunnel />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/contacts/:id" element={<UpdateContactForm />} />
       </Routes>
