@@ -15,7 +15,6 @@ function App() {
       </Container>
 
       <Routes>
-        <Route path="/" element={<PlaceHolderComponent />} />
         <Route path="/tunnel" element={<Tunnel />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/contacts/:id" element={<UpdateContactForm />} />
