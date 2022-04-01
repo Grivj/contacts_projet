@@ -1,15 +1,7 @@
-import { SearchIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon, SearchIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  Center,
   Container,
   Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Table,
   TableContainer,
   Tbody,
@@ -17,7 +9,6 @@ import {
   Th,
   Thead,
   Tr,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { NewContactForm } from "./ContactForms";
@@ -51,6 +42,7 @@ export const ContactsTable = (contacts) => {
           <Tr>
             <Th>Name</Th>
             <Th>Company</Th>
+            <Th>Called</Th>
             <Th></Th>
           </Tr>
         </Thead>
@@ -60,6 +52,13 @@ export const ContactsTable = (contacts) => {
               <Tr key={idx}>
                 <Td>{contact.name ? contact.name : "-"}</Td>
                 <Td>{contact.company ? contact.company : "-"}</Td>
+                <Td>
+                  {contact.called ? (
+                    <CheckIcon color="green" />
+                  ) : (
+                    <CloseIcon codlor="red" />
+                  )}
+                </Td>
                 <Td>
                   <Link href={`/contacts/${contact.id}`}>
                     <SearchIcon />
