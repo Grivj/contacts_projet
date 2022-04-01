@@ -46,7 +46,7 @@ export const NewContactForm = ({ onNewContact }) => {
         }).then();
 
         if (response.ok) {
-          onNewContact(response.json());
+          onNewContact(await response.json());
           actions.setSubmitting(false);
           actions.resetForm();
           toast({
