@@ -6,12 +6,11 @@ from flask import Flask, Response, request
 from flask_restful import Api, Resource, abort
 from flask_sqlalchemy import SQLAlchemy
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from sqlalchemy import create_engine
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
-
-from selenium_scrapper import get_company_name
 
 app = Flask(__name__)
 api = Api(app)
@@ -168,29 +167,6 @@ class ContactList(Resource):
 
 
 class ScrapperCompanyName(Resource):
-    # def get(self, siren: str):
-    #     contact = db.session.query(Contact).filter_by(siren=siren).first()
-    #     if contact is None:
-    #         abort(404, message=f"Contact with SIREN number: {siren} doesn't exist")
-
-    #     if contact.company:
-    #         return contact._serialize(), 200
-
-    #     chrome_options = webdriver.ChromeOptions()
-    #     chrome_options.headless = True
-    #     driver = webdriver.Remote(
-    #         command_executor="http://localhost:4444/wd/hub",
-    #         options=chrome_options,
-    #     )
-    #     driver.get("https://www.societe.com")
-    #     search_form = driver.find_element(By.NAME, "champs")
-    #     search_form.send_keys("838170918")
-    #     search_form.submit()
-    #     company_name = driver.find_element(By.ID, "identite_deno")
-    #     contact.company = company_name.text
-    #     driver.quit()
-    #     return contact._serialize(), 201
-
     def get(self, siren: str):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.headless = True
@@ -198,15 +174,19 @@ class ScrapperCompanyName(Resource):
             command_executor="http://172.18.0.3:4444/wd/hub",
             options=chrome_options,
         )
-        print(driver, flush=True)
         driver.get("https://www.societe.com")
         search_form = driver.find_element(By.NAME, "champs")
         search_form.send_keys(siren)
         search_form.submit()
-        company_name = driver.find_element(By.ID, "identite_deno").text
-        driver.quit()
 
-        return company_name, 200
+        try:
+            company_name = driver.find_element(By.ID, "identite_deno").text
+            driver.quit()
+            return company_name, 200
+
+        except NoSuchElementException:
+            driver.quit()
+            abort(404, message=f"Company name with SIREN number: {siren} was not found")
 
 
 api.add_resource(Index, "/")
