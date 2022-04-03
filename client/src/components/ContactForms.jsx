@@ -1,4 +1,12 @@
-import { Button, ButtonGroup, useToast } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
+import {
+  Button,
+  ButtonGroup,
+  FormControl,
+  FormLabel,
+  HStack,
+  useToast,
+} from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import {
   InputControl,
@@ -20,8 +28,8 @@ const validationSchema = Yup.object({
   ),
   siren: Yup.string()
     .matches(/^[0-9]+$/, "Must be only digits")
-    .min(9, "Must be exactly 14 digits")
-    .max(9, "Must be exactly 14 digits")
+    .min(9, "Must be exactly 9 digits")
+    .max(9, "Must be exactly 9 digits")
     .nullable(),
   called: Yup.boolean(),
 });
@@ -81,6 +89,7 @@ export const UpdateContactForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const toast = useToast();
+  const [fetchingScrapper, setFetchingScrapper] = useState(false);
 
   useEffect(() => {
     fetch(`/api/contacts/${id}`)
@@ -120,16 +129,66 @@ export const UpdateContactForm = () => {
       validationSchema={validationSchema}
       enableReinitialize
     >
-      {(props) => (
+      {(formik, props) => (
         <Form>
-          <InputControl name="name" label="Name" />
-          <InputControl name="company" label="Company" />
-          <InputControl name="phone_number" label="Phone Number" />
-          <InputControl name="email" label="Email address" />
-          <InputControl name="siren" label="SIREN number" />
-          <SwitchControl name="called" label="Called" />
+          <InputControl mb="10px" name="name" label="Name" />
+          <InputControl mb="10px" name="company" label="Company" />
+          <InputControl mb="10px" name="phone_number" label="Phone Number" />
+          <InputControl mb="10px" name="email" label="Email address" />
+          <HStack mb="20px" alignItems="flex-start">
+            <InputControl name="siren" label="SIREN number" />
+            <FormControl w="">
+              <FormLabel></FormLabel>
+              <Button
+                rightIcon={<SearchIcon />}
+                colorScheme="blue"
+                variant="outline"
+                marginTop="24px"
+                isLoading={fetchingScrapper}
+                disabled={!(formik.values.siren && !("siren" in formik.errors))}
+                onClick={async (values, actions) => {
+                  setFetchingScrapper(true);
+                  const response = await fetch(
+                    `/api/scrapper_company_name/${formik.values.siren}`,
+                    {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: null,
+                    }
+                  );
 
-          <ButtonGroup mt="10px">
+                  if (response.ok) {
+                    let company_name = await response.json();
+                    toast({
+                      title: `Company found: ${company_name}.`,
+                      status: "success",
+                      duration: 5000,
+                      isClosable: true,
+                    });
+                    setFetchingScrapper(false);
+                    formik.setFieldValue("company", company_name);
+                  } else {
+                    toast({
+                      title: "Siren number invalid or not found",
+                      description:
+                        "Make sure you submitted the form with the correct siren number first.",
+                      status: "error",
+                      duration: 5000,
+                      isClosable: true,
+                    });
+                    setFetchingScrapper(false);
+                  }
+                }}
+              >
+                Search
+              </Button>
+            </FormControl>
+          </HStack>
+          <SwitchControl mb="10px" name="called" label="Called" />
+
+          <ButtonGroup mt="30px">
             <SubmitButton>Submit</SubmitButton>
             <ResetButton>Reset</ResetButton>
             <Button
