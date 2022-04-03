@@ -18,9 +18,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 
-const phoneRegExp = /^0[1-9]([-. ]?[0-9]{2}){4}$/;
+export const phoneRegExp = /^0[1-9]([-. ]?[0-9]{2}){4}$/;
 
-const validationSchema = Yup.object({
+export const validationSchema = Yup.object({
   name: Yup.string().required("Name is required"),
   phone_number: Yup.string().matches(
     phoneRegExp,
@@ -163,6 +163,8 @@ export const UpdateContactForm = () => {
                     let company_name = await response.json();
                     toast({
                       title: `Company found: ${company_name}.`,
+                      description:
+                        "The form has been updated with the company's name.",
                       status: "success",
                       duration: 5000,
                       isClosable: true,
@@ -171,9 +173,7 @@ export const UpdateContactForm = () => {
                     formik.setFieldValue("company", company_name);
                   } else {
                     toast({
-                      title: "Siren number invalid or not found",
-                      description:
-                        "Make sure you submitted the form with the correct siren number first.",
+                      title: "Siren number invalid or not found.",
                       status: "error",
                       duration: 5000,
                       isClosable: true,
