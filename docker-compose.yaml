@@ -1,10 +1,15 @@
 version: "3"
 services:
+  selenium:
+    image: seleniarm/standalone-chromium:4.1.2-20220222
+    ports:
+      - "4444:4444"
+
   client:
     build: ./client
     ports:
       - "3000:3000"
-    # restart: unless-stopped
+    restart: unless-stopped
     volumes:
       - ./client:/client
     environment:
@@ -53,6 +58,7 @@ services:
       - api
       - client
       - phpmyadmin
+      - selenium
     ports:
       - 80:80
 

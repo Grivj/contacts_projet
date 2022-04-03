@@ -1,13 +1,17 @@
-import json
 import os
 
+import requests
 from faker import Faker
-from flask import Flask, Response, jsonify, make_response, request
-from flask_restful import Api, Resource, abort, reqparse
+from flask import Flask, Response, request
+from flask_restful import Api, Resource, abort
 from flask_sqlalchemy import SQLAlchemy
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from sqlalchemy import create_engine
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
+
+from selenium_scrapper import get_company_name
 
 app = Flask(__name__)
 api = Api(app)
@@ -51,6 +55,8 @@ class Contact(db.Model):
 
 db.create_all()
 
+# creates dummy Contacts before the first query and if no Contacts are in the database
+
 
 # Creates dummy Contacts if none exist already.
 if db.session.query(Contact).count() == 0:
@@ -60,7 +66,8 @@ if db.session.query(Contact).count() == 0:
             name=faker.name(),
             phone_number="0643014673",
             email=faker.email(),
-            company=faker.company(),
+            siren="838170918"
+            # company=faker.company(),
         )
         for _ in range(10)
     ]
@@ -68,25 +75,9 @@ if db.session.query(Contact).count() == 0:
     db.session.commit()
 
 
-# parser = reqparse.RequestParser()
-# parser.add_argument("name", type=str)
-# parser.add_argument("email", type=str)
-# parser.add_argument("phone_number", type=int)
-# parser.add_argument("siren", type=str)
-# parser.add_argument("company", type=str)
-# parser.add_argument("called", type=bool)
-
-
 class Index(Resource):
     def get(self):
         return "Hello", 200
-
-
-# def get_contact_index_by_id_if_exists(contact_id: int):
-#     for idx, contact in enumerate(FAKE_DATABASE):
-#         if contact["id"] == contact_id:
-#             return idx
-#     abort(404, message=f"Contact {contact_id} doesn't exist")
 
 
 class Tunnel(Resource):
@@ -162,9 +153,6 @@ class ContactInfo(Resource):
 
 
 class ContactList(Resource):
-    # def get(self):
-    # return FAKE_DATABASE
-
     def post(self):
         data = request.get_json()
         contact = Contact(**data)
@@ -179,12 +167,55 @@ class ContactList(Resource):
         return [contact._serialize() for contact in contacts], 200
 
 
-# ADDING ROUTES
+class ScrapperCompanyName(Resource):
+    # def get(self, siren: str):
+    #     contact = db.session.query(Contact).filter_by(siren=siren).first()
+    #     if contact is None:
+    #         abort(404, message=f"Contact with SIREN number: {siren} doesn't exist")
+
+    #     if contact.company:
+    #         return contact._serialize(), 200
+
+    #     chrome_options = webdriver.ChromeOptions()
+    #     chrome_options.headless = True
+    #     driver = webdriver.Remote(
+    #         command_executor="http://localhost:4444/wd/hub",
+    #         options=chrome_options,
+    #     )
+    #     driver.get("https://www.societe.com")
+    #     search_form = driver.find_element(By.NAME, "champs")
+    #     search_form.send_keys("838170918")
+    #     search_form.submit()
+    #     company_name = driver.find_element(By.ID, "identite_deno")
+    #     contact.company = company_name.text
+    #     driver.quit()
+    #     return contact._serialize(), 201
+
+    def get(self, siren: str):
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.headless = True
+        driver = webdriver.Remote(
+            command_executor="http://172.18.0.3:4444/wd/hub",
+            options=chrome_options,
+        )
+        print(driver, flush=True)
+        driver.get("https://www.societe.com")
+        search_form = driver.find_element(By.NAME, "champs")
+        search_form.send_keys(siren)
+        search_form.submit()
+        company_name = driver.find_element(By.ID, "identite_deno").text
+        driver.quit()
+
+        return company_name, 200
+
+
 api.add_resource(Index, "/")
 api.add_resource(ContactList, "/contacts")
 api.add_resource(ContactInfo, "/contacts/<int:id>")
 api.add_resource(Tunnel, "/tunnel")
 api.add_resource(TunnelUpdate, "/tunnel/<int:id>")
+api.add_resource(ScrapperCompanyName, "/scrapper_company_name/<string:siren>")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
