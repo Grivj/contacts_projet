@@ -4,7 +4,7 @@ import {
   InputControl,
   ResetButton,
   SubmitButton,
-  SwitchControl
+  SwitchControl,
 } from "formik-chakra-ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -55,7 +55,7 @@ export const Tunnel = () => {
                 actions.setSubmitting(false);
                 toast({
                   title: "Contact updated.",
-                  description: "Reloading in 2s.",
+                  description: "Going to next contact in 2s.",
                   status: "success",
                   duration: 2000,
                   isClosable: true,
