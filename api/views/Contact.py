@@ -1,29 +1,22 @@
 from flask import Response, request
-from flask_restful import Resource, abort, marshal_with
-from models.Contact import Contact, resource_fields
+from flask_restful import Resource, marshal_with
+from models.Contact import Contact, get_contact_by_id_or_abort, resource_fields
 
 
 class ContactInfo(Resource):
     @marshal_with(resource_fields)
     def get(self, id: int) -> Contact:
-        contact = Contact.query.filter_by(id=id).first()
-        if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist")
-        return contact, 200
+        return get_contact_by_id_or_abort(id), 200
 
     @marshal_with(resource_fields)
     def put(self, id: int) -> Contact:
-        contact = Contact.query.filter_by(id=id).first()
-        if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist")
+        contact = get_contact_by_id_or_abort(id)
         data = request.get_json()
         contact.update(data)
         return contact, 200
 
     def delete(self, id: int) -> Response:
-        contact = Contact.query.filter_by(id=id).first()
-        if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist")
+        contact = get_contact_by_id_or_abort(id)
         contact.delete()
         return "", 204
 

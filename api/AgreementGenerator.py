@@ -1,6 +1,6 @@
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
@@ -29,8 +29,12 @@ class AgreementGenerator:
     def filename(self) -> str:
         return f"{self.siren}.pdf"
 
+    @property
+    def is_already_exists(self) -> bool:
+        return bool(os.path.isfile(f"/{self.dir}/{self.filename}"))
+
     def generate_pdf(self) -> None:
-        pdf = canvas.Canvas(f'{self.dir}/{self.filename}')
+        pdf = canvas.Canvas(f"{self.dir}/{self.filename}")
         pdf.setTitle(self.title)
         self.pdf = pdf
 

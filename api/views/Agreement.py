@@ -1,18 +1,13 @@
-import os
-
 from AgreementGenerator import AgreementGenerator
 from flask import send_from_directory
-from flask_restful import Resource, abort
-from models.Contact import Contact
+from flask_restful import Resource
+from models.Contact import get_contact_by_id_or_abort, if_empty_company_or_siren_abort
 
 
 class GenerateAgreement(Resource):
     def get(self, id: int):
-        contact = Contact.query.filter_by(id=id).first()
-        if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist")
-        if contact.company is None or contact.siren is None:
-            abort(404, message=f"Contact {id} doesn't have a company or a siren number")
+        contact = get_contact_by_id_or_abort(id)
+        if_empty_company_or_siren_abort(contact)
 
         agreement = AgreementGenerator(
             contact.id, contact.name, contact.company, contact.siren
@@ -24,18 +19,13 @@ class GenerateAgreement(Resource):
 
 class DownloadAgreement(Resource):
     def get(self, id: int):
-        contact = Contact.query.filter_by(id=id).first()
-        if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist.")
-        if contact.company is None or contact.siren is None:
-            abort(
-                404, message=f"Contact {id} doesn't have a company or a siren number."
-            )
+        contact = get_contact_by_id_or_abort(id)
+        if_empty_company_or_siren_abort(contact)
 
         agreement = AgreementGenerator(
             contact.id, contact.name, contact.company, contact.siren
         )
-        if not os.path.isfile(f"/bpa/{contact.siren}.pdf"):
+        if not agreement.is_already_exists:
             agreement.generate()
 
         return send_from_directory(

@@ -2,7 +2,6 @@ import os
 
 from flask import Flask
 
-
 AGREEMENT_DIR = "/bpa"
 
 
@@ -16,8 +15,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(
 
 
 from db import init_db
-from urls import init_api
 from mail import init_mail
+from urls import init_api
 
 init_api(app)
 init_db(app)

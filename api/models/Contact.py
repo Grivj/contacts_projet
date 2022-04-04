@@ -1,6 +1,8 @@
 from db import db
 from flask_restful import fields
 from sqlalchemy.inspection import inspect
+from flask_restful import abort
+
 
 resource_fields = {
     "id": fields.Integer,
@@ -36,3 +38,15 @@ class Contact(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+
+def get_contact_by_id_or_abort(id: int):
+    contact = Contact.query.filter_by(id=id).first()
+    if not contact:
+        abort(404, message=f"Contact {id} doesn't exist")
+    return contact
+
+
+def if_empty_company_or_siren_abort(contact: Contact):
+    if not contact.company or not contact.siren:
+        abort(400, message=f"Contact with if: {id} has no company or siren number.")
