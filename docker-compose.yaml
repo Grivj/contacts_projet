@@ -59,6 +59,7 @@ services:
       - client
       - phpmyadmin
       - selenium
+    restart: unless-stopped
     ports:
       - 80:80
 
