@@ -26,9 +26,11 @@ class DownloadAgreement(Resource):
     def get(self, id: int):
         contact = Contact.query.filter_by(id=id).first()
         if contact is None:
-            abort(404, message=f"Contact {id} doesn't exist")
+            abort(404, message=f"Contact {id} doesn't exist.")
         if contact.company is None or contact.siren is None:
-            abort(404, message=f"Contact {id} doesn't have a company or a siren number")
+            abort(
+                404, message=f"Contact {id} doesn't have a company or a siren number."
+            )
 
         agreement = AgreementGenerator(
             contact.id, contact.name, contact.company, contact.siren

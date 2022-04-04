@@ -3,10 +3,9 @@ from flask_restful import Api
 
 from views.Agreement import DownloadAgreement, GenerateAgreement
 from views.Contact import ContactInfo, ContactList
+from views.Mailing import Mailing
 from views.Scrapper import ScrapperCompanyName
 from views.Tunnel import Tunnel
-
-# from views.Mailing import Mailing
 
 
 def init_api(app: Flask):
@@ -17,4 +16,4 @@ def init_api(app: Flask):
     api.add_resource(ScrapperCompanyName, "/scrapper_company_name/<string:siren>")
     api.add_resource(GenerateAgreement, "/contacts/<int:id>/generate_agreement")
     api.add_resource(DownloadAgreement, "/contacts/<int:id>/download_agreement")
-    # api.add_resource(Mailing, "/contacts/<int:id>/mailing")
+    api.add_resource(Mailing, "/contacts/<int:id>/send_mail")

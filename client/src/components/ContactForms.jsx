@@ -91,6 +91,7 @@ export const UpdateContactForm = () => {
   const { id } = useParams();
   const toast = useToast();
   const [fetchingScrapper, setFetchingScrapper] = useState(false);
+  const [loadingMail, setLoadingMail] = useState(false);
 
   useEffect(() => {
     fetch(`/api/contacts/${id}`)
@@ -173,6 +174,36 @@ export const UpdateContactForm = () => {
     }
   };
 
+  const handleSendMail = async (values, actions) => {
+    setLoadingMail(true);
+    const response = await fetch(`/api/contacts/${id}/send_mail`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: null,
+    });
+
+    if (response.ok) {
+      toast({
+        title: "Mail sent.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Error while sending mail.",
+        description: await response.json(),
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+
+    setLoadingMail(false);
+  };
+
   return (
     <Formik
       initialValues={contact}
@@ -194,6 +225,15 @@ export const UpdateContactForm = () => {
                 colorScheme="blue"
                 variant="outline"
                 marginTop="24px"
+                isLoading={loadingMail}
+                // disable the button if the contact has no email, no company or no siren
+                isDisabled={
+                  !formik.values.email ||
+                  !formik.values.company ||
+                  !formik.values.siren ||
+                  "siren" in formik.errors
+                }
+                onClick={handleSendMail}
               >
                 Agreement
               </Button>

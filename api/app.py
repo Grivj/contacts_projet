@@ -1,16 +1,7 @@
 import os
 
-from faker import Faker
-from flask import Flask, Response, redirect, request, send_from_directory, url_for
-from flask_restful import Api, Resource, abort
-from flask_sqlalchemy import SQLAlchemy
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask import Flask
 
-from AgreementGenerator import AgreementGenerator
 
 AGREEMENT_DIR = "/bpa"
 
@@ -26,9 +17,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(
 
 from db import init_db
 from urls import init_api
+from mail import init_mail
 
 init_api(app)
 init_db(app)
+init_mail(app)
 
 
 if __name__ == "__main__":
