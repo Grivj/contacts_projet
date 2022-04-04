@@ -4,7 +4,8 @@ mysql-connector
 pymysql
 flask_sqlalchemy
 Flask-RESTful
+flask_mail
 Faker
 SQLAlchemy<1.4
 selenium
-requests
+reportlab
