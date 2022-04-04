@@ -1,5 +1,15 @@
 from db import db
+from flask_restful import fields
 from sqlalchemy.inspection import inspect
+
+resource_fields = {
+    "id": fields.Integer,
+    "name": fields.String,
+    "company": fields.String,
+    "siren": fields.String,
+    "email": fields.String,
+    "phone_number": fields.String,
+}
 
 
 class Contact(db.Model):
@@ -11,9 +21,6 @@ class Contact(db.Model):
     siren = db.Column(db.String(14), nullable=True)
     company = db.Column(db.String(80), nullable=True)
     called = db.Column(db.Boolean, default=False, nullable=True)
-
-    def _serialize(self):
-        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     def update(self, updated_contact: dict):
         for column in self.__table__.columns.keys():
