@@ -1,7 +1,8 @@
-import { SearchIcon } from "@chakra-ui/icons";
+import { DownloadIcon, EmailIcon, SearchIcon } from "@chakra-ui/icons";
 import {
   Button,
   ButtonGroup,
+  Divider,
   FormControl,
   FormLabel,
   HStack,
@@ -104,37 +105,101 @@ export const UpdateContactForm = () => {
       .catch((error) => console.error(error));
   }, [id]);
 
+  const handleSubmit = async (values, actions) => {
+    const response = await fetch(`/api/contacts/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    }).then();
+
+    if (response.ok) {
+      actions.setSubmitting(false);
+      toast({
+        title: "Contact updated.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleGetCompanyName = async (formik) => {
+    setFetchingScrapper(true);
+    const response = await fetch(
+      `/api/scrapper_company_name/${formik.values.siren}`
+    );
+    if (response.ok) {
+      let company_name = await response.json();
+      formik.setFieldValue("company", company_name);
+      toast({
+        title: `Company found: ${company_name}.`,
+        description:
+          "The form has been updated with the company's name. Don't forget to submit the form.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Error while fetching company name.",
+        description: "SIREN number incorrect or not found.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+    setFetchingScrapper(false);
+  };
+
+  const handleDeleteContact = async () => {
+    const response = await fetch(`/api/contacts/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: null,
+    });
+
+    if (response.ok) {
+      toast({
+        title: "Contact deleted.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate("/contacts");
+    }
+  };
+
   return (
     <Formik
       initialValues={contact}
-      onSubmit={async (values, actions) => {
-        const response = await fetch(`/api/contacts/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }).then();
-
-        if (response.ok) {
-          actions.setSubmitting(false);
-          toast({
-            title: "Contact updated.",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-          });
-        }
-      }}
+      onSubmit={handleSubmit}
       validationSchema={validationSchema}
-      enableReinitialize
+      enableReinitialize={true}
     >
       {(formik, props) => (
         <Form>
           <InputControl mb="10px" name="name" label="Name" />
           <InputControl mb="10px" name="company" label="Company" />
           <InputControl mb="10px" name="phone_number" label="Phone Number" />
-          <InputControl mb="10px" name="email" label="Email address" />
+          <HStack mb="20px" alignItems="flex-start">
+            <InputControl mb="10px" name="email" label="Email address" />
+            <FormControl w="">
+              <FormLabel></FormLabel>
+              <Button
+                rightIcon={<EmailIcon />}
+                colorScheme="blue"
+                variant="outline"
+                marginTop="24px"
+              >
+                Agreement
+              </Button>
+            </FormControl>
+          </HStack>
+
           <HStack mb="20px" alignItems="flex-start">
             <InputControl name="siren" label="SIREN number" />
             <FormControl w="">
@@ -146,41 +211,7 @@ export const UpdateContactForm = () => {
                 marginTop="24px"
                 isLoading={fetchingScrapper}
                 disabled={!(formik.values.siren && !("siren" in formik.errors))}
-                onClick={async (values, actions) => {
-                  setFetchingScrapper(true);
-                  const response = await fetch(
-                    `/api/scrapper_company_name/${formik.values.siren}`,
-                    {
-                      method: "GET",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: null,
-                    }
-                  );
-
-                  if (response.ok) {
-                    let company_name = await response.json();
-                    toast({
-                      title: `Company found: ${company_name}.`,
-                      description:
-                        "The form has been updated with the company's name.",
-                      status: "success",
-                      duration: 5000,
-                      isClosable: true,
-                    });
-                    setFetchingScrapper(false);
-                    formik.setFieldValue("company", company_name);
-                  } else {
-                    toast({
-                      title: "Siren number invalid or not found.",
-                      status: "error",
-                      duration: 5000,
-                      isClosable: true,
-                    });
-                    setFetchingScrapper(false);
-                  }
-                }}
+                onClick={() => handleGetCompanyName(formik)}
               >
                 Search
               </Button>
@@ -188,35 +219,32 @@ export const UpdateContactForm = () => {
           </HStack>
           <SwitchControl mb="10px" name="called" label="Called" />
 
-          <ButtonGroup mt="30px">
-            <SubmitButton>Submit</SubmitButton>
-            <ResetButton>Reset</ResetButton>
-            <Button
-              colorScheme="red"
-              variant="solid"
-              onClick={async (values, actions) => {
-                const response = await fetch(`/api/contacts/${id}`, {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: null,
-                }).then();
-
-                if (response.ok) {
-                  toast({
-                    title: "Contact deleted.",
-                    status: "success",
-                    duration: 5000,
-                    isClosable: true,
-                  });
-                  navigate("/contacts");
+          <Divider m="30px auto" />
+          <HStack justifyContent="space-between">
+            <ButtonGroup>
+              <SubmitButton>Submit</SubmitButton>
+              <ResetButton>Reset</ResetButton>
+              <Button
+                rightIcon={<DownloadIcon />}
+                colorScheme="blue"
+                variant="outline"
+                onClick={() =>
+                  window.open(`/api/contacts/${id}/download_agreement`)
                 }
-              }}
-            >
-              Delete
-            </Button>
-          </ButtonGroup>
+              >
+                Agreement
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup>
+              <Button
+                colorScheme="red"
+                variant="solid"
+                onClick={handleDeleteContact}
+              >
+                Delete
+              </Button>
+            </ButtonGroup>
+          </HStack>
         </Form>
       )}
     </Formik>

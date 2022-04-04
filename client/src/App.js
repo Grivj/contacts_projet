@@ -1,5 +1,5 @@
 import { Container, Divider } from "@chakra-ui/react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import './App.css';
 import { UpdateContactForm } from "./components/ContactForms";
 import Contacts from "./components/Contacts";
@@ -25,14 +25,3 @@ function App() {
 }
 
 export default App;
-
-
-const PlaceHolderComponent = () => {
-  const location = useLocation();
-  return (
-    <div>
-      <h1>PlaceHolderComponent, current url: {location.pathname}</h1>
-    </div>
-  );
-}
-

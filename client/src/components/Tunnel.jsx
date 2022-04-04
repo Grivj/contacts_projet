@@ -26,6 +26,29 @@ export const Tunnel = () => {
       .then((json) => setContact(json));
   }, []);
 
+  // handleSubmit update contact in database
+  const handleSubmit = async (values, actions) => {
+    const response = await fetch(`/api/contacts/${contact.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    }).then();
+
+    if (response.ok) {
+      actions.setSubmitting(false);
+      toast({
+        title: "Contact updated.",
+        description: "Going to next contact in 2s.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+      setTimeout(() => window.location.reload(), 2000);
+    }
+  };
+
   return (
     <Box>
       {Object.keys(contact).length === 0 ? (
@@ -42,27 +65,7 @@ export const Tunnel = () => {
           <Formik
             initialValues={contact}
             validateOnMount
-            onSubmit={async (values, actions) => {
-              const response = await fetch(`/api/tunnel/${contact.id}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(values),
-              }).then();
-
-              if (response.ok) {
-                actions.setSubmitting(false);
-                toast({
-                  title: "Contact updated.",
-                  description: "Going to next contact in 2s.",
-                  status: "success",
-                  duration: 2000,
-                  isClosable: true,
-                });
-                setTimeout(() => window.location.reload(), 2000);
-              }
-            }}
+            onSubmit={handleSubmit}
             validationSchema={Yup.object({
               siren: Yup.string()
                 .matches(/^[0-9]+$/, "Must be only digits")
