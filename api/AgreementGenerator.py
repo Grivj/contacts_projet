@@ -9,7 +9,7 @@ from reportlab.platypus import Paragraph
 
 @dataclass
 class AgreementGenerator:
-    """Generate a good for agreement pdf file"""
+    """Generate a good for agreement (bon pour accord) pdf file"""
 
     id: int
     name: str
@@ -30,11 +30,15 @@ class AgreementGenerator:
         return f"{self.siren}.pdf"
 
     @property
+    def file_path(self) -> str:
+        return f"/{self.dir}/{self.filename}"
+
+    @property
     def is_already_exists(self) -> bool:
-        return bool(os.path.isfile(f"/{self.dir}/{self.filename}"))
+        return bool(os.path.isfile(self.file_path))
 
     def generate_pdf(self) -> None:
-        pdf = canvas.Canvas(f"{self.dir}/{self.filename}")
+        pdf = canvas.Canvas(self.file_path)
         pdf.setTitle(self.title)
         self.pdf = pdf
 
@@ -49,7 +53,8 @@ class AgreementGenerator:
         donne mon accord pour devenir client de la société Ayomi.
         """
         self.pdf.setFont("Helvetica", 14)
-        styles = ParagraphStyle(name="Normal", fontName="Helvetica", fontSize=14)
+        styles = ParagraphStyle(
+            name="Normal", fontName="Helvetica", fontSize=14)
         paragraph = Paragraph(paragraph_base, style=styles)
         paragraph.wrapOn(self.pdf, 400, 400)
         paragraph.drawOn(self.pdf, 100, 550)
@@ -66,7 +71,10 @@ class AgreementGenerator:
         self.pdf.drawString(100, 300, "Signature Ayomi")
         self.pdf.drawString(400, 300, "Signature Client")
 
-    def generate(self) -> canvas.Canvas:
+    def generate_and_save(self) -> canvas.Canvas:
+        """
+        Sequentially generates the pdf and finally saves it on server.
+        """
         self.generate_pdf()
         self.draw_header()
         self.draw_paragraph()

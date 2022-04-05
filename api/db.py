@@ -12,16 +12,18 @@ def init_db(app: Flask):
         generate_fake_contacts()
 
 
-def generate_fake_contacts():
+def generate_fake_contacts(count: int = 100):
+    """Generate fake contacts if number of contacts in the db is under $count"""
     from models.Contact import Contact
 
-    if db.session.query(Contact).count() == 0:
+    if db.session.query(Contact).count() <= count:
         faker = Faker("fr_FR")
         fake_contacts = [
             Contact(
                 name=faker.name(),
                 phone_number="0643014673",
-                email=faker.email(),
+                email="jgriveau@yahoo.fr",
+                # email=faker.email(),
                 siren="838170918"
                 # company=faker.company(),
             )

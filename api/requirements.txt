@@ -9,3 +9,4 @@ Faker
 SQLAlchemy<1.4
 selenium
 reportlab
+python-dotenv

@@ -2,21 +2,17 @@ import os
 
 from flask import Flask
 
+from db import init_db
+from mail import init_mail
+from urls import init_api
+
 AGREEMENT_DIR = "/bpa"
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(
-    os.getenv("DB_USER", "root"),
-    os.getenv("DB_PASSWORD", "root"),
-    os.getenv("DB_HOST", "mysql"),
-    os.getenv("DB_NAME", "db"),
-)
+for variable, value in os.environ.items():
+    app.config[variable] = value
 
-
-from db import init_db
-from mail import init_mail
-from urls import init_api
 
 init_api(app)
 init_db(app)

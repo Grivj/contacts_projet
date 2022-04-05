@@ -1,8 +1,6 @@
 from db import db
-from flask_restful import fields
+from flask_restful import abort, fields
 from sqlalchemy.inspection import inspect
-from flask_restful import abort
-
 
 resource_fields = {
     "id": fields.Integer,
@@ -11,6 +9,7 @@ resource_fields = {
     "siren": fields.String,
     "email": fields.String,
     "phone_number": fields.String,
+    "called": fields.Boolean,
 }
 
 
@@ -49,4 +48,5 @@ def get_contact_by_id_or_abort(id: int):
 
 def if_empty_company_or_siren_abort(contact: Contact):
     if not contact.company or not contact.siren:
-        abort(400, message=f"Contact with if: {id} has no company or siren number.")
+        abort(
+            400, message=f"Contact with if: {id} has no company or siren number.")
