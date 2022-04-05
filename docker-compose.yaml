@@ -22,9 +22,7 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
-    environment:
-      - FLASK_ENV=development
-      - FLASK_APP=app.py
+    env_file: api/.env
     volumes:
       - ./api:/api
 
