@@ -1,0 +1,25 @@
+version: "3"
+services:
+  selenium:
+    image: seleniarm/standalone-chromium:4.1.2-20220222
+    ports:
+      - "4444:4444"
+
+  api-test:
+    build: ./api
+    depends_on:
+      - mysql
+    env_file: api/.env
+    volumes:
+      - ./api:/api
+    ports:
+      - "5000:5000"
+    command: python -m unittest --buffer
+
+  mysql:
+    image: arm64v8/mysql:oracle
+    environment:
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=ayomi
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
