@@ -4,14 +4,21 @@ from AgreementGenerator import AgreementGenerator
 from flask_mail import Message
 from flask_restful import Resource, abort
 from mail import mail
-from models.Contact import get_contact_by_id_or_abort, if_empty_company_or_siren_abort
+from models.Contact import (get_contact_by_id_or_abort,
+                            if_empty_company_or_siren_abort)
 
-ADDRESS = "jordan.testing.ayomi@gmail.com"
-PASSWORD = "AYOMItestingEMAIL"
+MAIL_USERNAME = os.environ["MAIL_USERNAME"]
 
 
 class Mailing(Resource):
     def get(self, id: int):
+        """
+        If no agreement is found for this contact, generate and saves one that
+        is then sent by mail to the contact's email.
+
+        Args:
+            id (int): contact's id
+        """
         contact = get_contact_by_id_or_abort(id)
         if_empty_company_or_siren_abort(contact)
         if not contact.email:
@@ -23,9 +30,10 @@ class Mailing(Resource):
             contact.id, contact.name, contact.company, contact.siren
         )
         if not agreement.is_already_exists:
-            agreement.generate()
+            agreement.generate_and_save()
 
-        msg = Message("Hello", sender=ADDRESS, recipients=[contact.email])
+        msg = Message("Hello", sender=MAIL_USERNAME,
+                      recipients=[contact.email])
         msg.body = "Please find your agreement contract."
 
         # join the pdf in the mail
